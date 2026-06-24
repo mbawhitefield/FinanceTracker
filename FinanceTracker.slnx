@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="FinanceTracker.API/FinanceTracker.API.csproj" />
+  <Project Path="FinanceTracker.Tests/FinanceTracker.Tests.csproj" />
+</Solution>
