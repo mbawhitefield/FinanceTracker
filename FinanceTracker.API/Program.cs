@@ -104,16 +104,14 @@ var app = builder.Build();
 // ── Middleware Pipeline (ORDER MATTERS) ──────────────────────
 app.UseMiddleware<ExceptionMiddleware>(); // 1. Catch all errors first
 
-if (app.Environment.IsDevelopment())
+app.MapOpenApi();
+app.MapScalarApiReference(options =>
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference(options =>
-    {
-        options.Title = "Finance Tracker API";
-        options.Theme = ScalarTheme.Purple;
-        options.DefaultHttpClient = new(ScalarTarget.Http, ScalarClient.Http11);
-    });
-}
+    options.Title = "Finance Tracker API";
+    options.Theme = ScalarTheme.Purple;
+    options.DefaultHttpClient = new(ScalarTarget.Http, ScalarClient.Http11);
+});
+
 
 app.UseCors("AllowAll");
 app.UseAuthentication();
