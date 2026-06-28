@@ -1,1 +1,45 @@
-<publishData><publishProfile profileName="finance-tracker-api - Web Deploy" publishMethod="MSDeploy" publishUrl="finance-tracker-api-cfehc2f4grh0begu.scm.westus3-01.azurewebsites.net:443" msdeploySite="finance-tracker-api" userName="$finance-tracker-api" userPWD="wCLibhZg7ZbntAfyFtl6YpyjFgfb386aMvvQrmmcxjjXFG2bjN4CW2LzDgTl" destinationAppUrl="https://finance-tracker-api-cfehc2f4grh0begu.westus3-01.azurewebsites.net" SQLServerDBConnectionString="Server=tcp:finance-tracker-server2026.database.windows.net,1433;Initial Catalog=FinanceTrackerDb;Persist Security Info=False;User ID=sqladmin;Password=WGMPeM!Mf4rqfuC;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;" mySQLDBConnectionString="" hostingProviderForumLink="" controlPanelLink="https://portal.azure.com" webSystem="WebSites" targetDatabaseEngineType="sqlazuredatabase" targetServerVersion="Version100"><databases><add name="DefaultConnection" connectionString="Server=tcp:finance-tracker-server2026.database.windows.net,1433;Initial Catalog=FinanceTrackerDb;Persist Security Info=False;User ID=sqladmin;Password=WGMPeM!Mf4rqfuC;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;" providerName="System.Data.SqlClient" type="Sql" targetDatabaseEngineType="sqlazuredatabase" targetServerVersion="Version100" /></databases></publishProfile><publishProfile profileName="finance-tracker-api - FTP" publishMethod="FTP" publishUrl="ftps://waws-prod-usw3-043.ftp.azurewebsites.windows.net/site/wwwroot" ftpPassiveMode="True" userName="finance-tracker-api\$finance-tracker-api" userPWD="wCLibhZg7ZbntAfyFtl6YpyjFgfb386aMvvQrmmcxjjXFG2bjN4CW2LzDgTl" destinationAppUrl="https://finance-tracker-api-cfehc2f4grh0begu.westus3-01.azurewebsites.net" SQLServerDBConnectionString="Server=tcp:finance-tracker-server2026.database.windows.net,1433;Initial Catalog=FinanceTrackerDb;Persist Security Info=False;User ID=sqladmin;Password=WGMPeM!Mf4rqfuC;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;" mySQLDBConnectionString="" hostingProviderForumLink="" controlPanelLink="https://portal.azure.com" webSystem="WebSites" targetDatabaseEngineType="sqlazuredatabase" targetServerVersion="Version100"><databases><add name="DefaultConnection" connectionString="Server=tcp:finance-tracker-server2026.database.windows.net,1433;Initial Catalog=FinanceTrackerDb;Persist Security Info=False;User ID=sqladmin;Password=WGMPeM!Mf4rqfuC;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;" providerName="System.Data.SqlClient" type="Sql" targetDatabaseEngineType="sqlazuredatabase" targetServerVersion="Version100" /></databases></publishProfile><publishProfile profileName="finance-tracker-api - Zip Deploy" publishMethod="ZipDeploy" publishUrl="finance-tracker-api-cfehc2f4grh0begu.scm.westus3-01.azurewebsites.net:443" userName="$finance-tracker-api" userPWD="wCLibhZg7ZbntAfyFtl6YpyjFgfb386aMvvQrmmcxjjXFG2bjN4CW2LzDgTl" destinationAppUrl="https://finance-tracker-api-cfehc2f4grh0begu.westus3-01.azurewebsites.net" SQLServerDBConnectionString="Server=tcp:finance-tracker-server2026.database.windows.net,1433;Initial Catalog=FinanceTrackerDb;Persist Security Info=False;User ID=sqladmin;Password=WGMPeM!Mf4rqfuC;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;" mySQLDBConnectionString="" hostingProviderForumLink="" controlPanelLink="https://portal.azure.com" webSystem="WebSites" targetDatabaseEngineType="sqlazuredatabase" targetServerVersion="Version100"><databases><add name="DefaultConnection" connectionString="Server=tcp:finance-tracker-server2026.database.windows.net,1433;Initial Catalog=FinanceTrackerDb;Persist Security Info=False;User ID=sqladmin;Password=WGMPeM!Mf4rqfuC;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;" providerName="System.Data.SqlClient" type="Sql" targetDatabaseEngineType="sqlazuredatabase" targetServerVersion="Version100" /></databases></publishProfile></publishData>
+name: Build and Deploy to Azure
+
+on:
+  push:
+    branches:
+    - main # Runs every time you push to main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Check out your code
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # Step 2: Set up .NET 10
+    - name: Set up .NET 10
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.x'
+
+    # Step 3: Restore NuGet packages
+    - name: Restore packages
+      run: dotnet restore FinanceTracker.API/FinanceTracker.API.csproj
+
+    # Step 4: Build in Release mode
+    - name: Build
+      run: dotnet build FinanceTracker.API/FinanceTracker.API.csproj --configuration Release --no-restore
+
+    # Step 5: Run tests
+    - name: Test
+      run: dotnet test FinanceTracker.Tests/FinanceTracker.Tests.csproj --no-restore --verbosity normal
+
+    # Step 6: Publish the API
+    - name: Publish
+      run: dotnet publish FinanceTracker.API/FinanceTracker.API.csproj --configuration Release --output ./publish
+
+    # Step 7: Deploy to Azure App Service
+    - name: Deploy to Azure
+      uses: azure/webapps-deploy@v3
+      with:
+        app-name: 'finance-tracker-api'
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: ./publish
