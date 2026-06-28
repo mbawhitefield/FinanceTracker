@@ -120,4 +120,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
+// Auto-apply migrations on startup in production
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 app.Run();

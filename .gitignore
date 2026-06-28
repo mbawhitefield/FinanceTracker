@@ -10,6 +10,8 @@
 *.userosscache
 *.sln.docstates
 
+
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
@@ -361,3 +363,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Local environment secrets — never commit these
+**/appsettings.Development.json
+**/appsettings.Local.json
